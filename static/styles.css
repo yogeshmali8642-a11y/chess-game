@@ -66,9 +66,18 @@ body {
 .wizard-mode strong, .wizard-mode small { display: block; }
 .wizard-mode strong { font-size: 13px; margin-bottom: 3px; }
 .wizard-mode small { font-size: 10px; color: var(--text-muted); }
+.wizard-section-label { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; margin: 24px 0 8px; }
+.wizard-view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.wizard-view { display: flex; align-items: center; gap: 11px; padding: 12px 14px; text-align: left; color: var(--text-muted); border: 1px solid var(--panel-border); border-radius: 11px; background: rgba(0,0,0,.28); }
+.wizard-view.active { color: var(--text-main); border-color: var(--emerald-neon); background: rgba(184,243,106,.1); }
+.wizard-view-symbol { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; color: var(--emerald-neon); background: rgba(184,243,106,.12); font-size: 22px; }
+.wizard-view strong, .wizard-view small { display: block; }
+.wizard-view strong { font-size: 12px; margin-bottom: 2px; }
+.wizard-view small { font-size: 10px; color: var(--text-muted); }
 .wizard-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 22px; }
 .wizard-form-grid label { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
-.wizard-form-grid select { display: block; width: 100%; margin-top: 7px; padding: 11px 10px; border: 1px solid var(--panel-border); border-radius: 8px; background: rgba(0,0,0,.45); font-size: 12px; letter-spacing: 0; }
+.wizard-form-grid select { appearance: none; display: block; width: 100%; margin-top: 7px; padding: 11px 34px 11px 10px; border: 1px solid var(--panel-border); border-radius: 9px; color: var(--text-main); background-color: rgba(0,0,0,.45); background-image: linear-gradient(45deg, transparent 50%, var(--emerald-neon) 50%), linear-gradient(135deg, var(--emerald-neon) 50%, transparent 50%); background-position: calc(100% - 15px) 50%, calc(100% - 10px) 50%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; font-size: 12px; letter-spacing: 0; cursor: pointer; }
+.wizard-form-grid select:hover, .wizard-form-grid select:focus { border-color: rgba(184,243,106,.7); outline: none; box-shadow: 0 0 0 3px rgba(184,243,106,.08); }
 .wizard-form-grid label.is-disabled { opacity: .4; }
 .customize-toggle { display: none; color: var(--text-muted); font-size: 12px; padding: 8px 12px; border: 1px solid var(--panel-border); border-radius: 8px; }
 .customize-toggle:hover { color: var(--emerald-neon); border-color: var(--emerald-neon); }
@@ -102,6 +111,7 @@ body.game-active .side-panel { max-height: calc(100vh - 90px); overflow-y: auto;
   .entry-brand { top: 20px; left: 20px; }
   .landing-card, .setup-wizard { padding: 30px 22px; }
   .wizard-mode-grid, .wizard-form-grid { grid-template-columns: 1fr; }
+  .wizard-view-grid { grid-template-columns: 1fr; }
   .entry-features { flex-wrap: wrap; gap: 8px 14px; }
   body.game-active .workspace { grid-template-columns: 1fr; }
   body.game-active .side-panel { display: none; }

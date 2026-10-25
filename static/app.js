@@ -313,6 +313,8 @@ function syncWizardToGameControls() {
   $('timeSelect').value = $('wizardTimeSelect').value;
   $('colorSelect').value = $('wizardColorSelect').value;
   $('levelSelect').value = $('wizardLevelSelect').value;
+  const view = document.querySelector('.wizard-view.active')?.dataset.wizardView || '3d';
+  setViewMode(view === '3d');
 }
 
 // Load Existing or Start New
@@ -1097,6 +1099,12 @@ window.addEventListener('DOMContentLoaded', async () => {
       $('wizardLevelField').classList.toggle('is-disabled', local);
       $('wizardColorSelect').disabled = local;
       $('wizardLevelSelect').disabled = local;
+    });
+  });
+  document.querySelectorAll('.wizard-view').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.wizard-view').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
     });
   });
   $('launchMatchButton').addEventListener('click', async () => {
