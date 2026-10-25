@@ -287,6 +287,22 @@ function leaveGameMode() {
   document.querySelector('.topbar-controls')?.classList.remove('customize-open');
   $('setupWizard').hidden = false;
   $('landingScreen').hidden = true;
+  $('entryFlow').style.display = '';
+  $('setupWizard').hidden = true;
+  $('landingScreen').hidden = false;
+}
+
+function showInstallModal() {
+  if (installPrompt) $('installModal').hidden = false;
+}
+
+async function installPWA() {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;
+  $('installModal').hidden = true;
+  $('installButton').hidden = true;
 }
 
 function syncWizardToGameControls() {
@@ -1056,13 +1072,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     installPrompt = e;
     const btn = $('installButton');
     if (btn) btn.hidden = false;
+    showInstallModal();
   });
   $('installButton').addEventListener('click', async () => {
     if (!installPrompt) return;
-    installPrompt.prompt();
-    await installPrompt.userChoice;
-    installPrompt = null;
-    $('installButton').hidden = true;
+    await installPWA();
   });
 
   // Guided landing -> setup -> game flow.
@@ -1094,6 +1108,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('customizeToggle').addEventListener('click', () => {
     document.querySelector('.topbar-controls')?.classList.toggle('customize-open');
   });
+  $('matchControlToggle').addEventListener('click', () => {
+    const setupCard = document.querySelector('.setup-card');
+    const hidden = setupCard.toggleAttribute('hidden');
+    $('matchControlToggle').textContent = hidden ? 'Show Match Control' : 'Match Control';
+  });
+  $('backToLobbyButton').addEventListener('click', leaveGameMode);
+  $('dismissInstallButton').addEventListener('click', () => $('installModal').hidden = true);
+  $('installLaterButton').addEventListener('click', () => $('installModal').hidden = true);
+  $('installNowButton').addEventListener('click', installPWA);
   window.addEventListener('appinstalled', () => {
     installPrompt = null;
     const btn = $('installButton');

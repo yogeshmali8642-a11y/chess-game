@@ -72,6 +72,22 @@ body {
 .wizard-form-grid label.is-disabled { opacity: .4; }
 .customize-toggle { display: none; color: var(--text-muted); font-size: 12px; padding: 8px 12px; border: 1px solid var(--panel-border); border-radius: 8px; }
 .customize-toggle:hover { color: var(--emerald-neon); border-color: var(--emerald-neon); }
+.game-nav-actions { display: none; align-items: center; gap: 8px; margin-left: auto; }
+.game-nav-btn { color: var(--text-muted); font-size: 12px; padding: 8px 11px; border: 1px solid var(--panel-border); border-radius: 8px; white-space: nowrap; }
+.game-nav-btn:hover { color: var(--emerald-neon); border-color: var(--emerald-neon); }
+.game-nav-btn-accent { color: #0c1708; background: var(--emerald-neon); border-color: var(--emerald-neon); font-weight: 800; }
+.game-nav-btn-accent:hover { color: #0c1708; background: #d2ff7b; }
+body.game-active .game-nav-actions { display: flex; }
+.install-modal { position: fixed; inset: 0; z-index: 110; display: grid; place-items: center; padding: 20px; background: rgba(5,10,7,.78); backdrop-filter: blur(10px); }
+.install-modal[hidden] { display: none; }
+.install-modal-card { position: relative; width: min(100%, 380px); padding: 34px; text-align: center; border: 1px solid rgba(184,243,106,.3); border-radius: 20px; background: rgba(20,29,23,.98); box-shadow: var(--shadow-main); }
+.install-modal-icon { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 18px; border-radius: 16px; color: #0c1708; background: var(--emerald-neon); font-size: 28px; font-weight: 800; }
+.install-modal-card h2 { font-size: 25px; margin-bottom: 8px; }
+.install-modal-card > p:not(.eyebrow) { color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 22px; }
+.install-modal-close { position: absolute; top: 12px; right: 14px; color: var(--text-muted); font-size: 22px; }
+.install-modal-close:hover { color: #fff; }
+.install-later-button { display: block; width: 100%; margin-top: 12px; color: var(--text-muted); font-size: 12px; }
+.install-later-button:hover { color: var(--text-main); }
 body.game-active { overflow: hidden; }
 body.game-active .app-shell { max-width: 1600px; min-height: 100vh; padding-bottom: 16px; }
 body.game-active .topbar { height: 60px; }
@@ -89,6 +105,8 @@ body.game-active .side-panel { max-height: calc(100vh - 90px); overflow-y: auto;
   .entry-features { flex-wrap: wrap; gap: 8px 14px; }
   body.game-active .workspace { grid-template-columns: 1fr; }
   body.game-active .side-panel { display: none; }
+  body.game-active .game-nav-actions { gap: 4px; }
+  .game-nav-btn { padding: 7px 8px; font-size: 10px; }
 }
 
 button, select, input {
