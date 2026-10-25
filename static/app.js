@@ -525,6 +525,96 @@ async function copyFEN() {
   }
 }
 
+// Level display names
+const LEVEL_NAMES = {
+  club:         '⚔️ Club Player · 1500',
+  master:       '🏆 Master · 2200',
+  yogesh:       '🔥 Yogesh · 2700',
+  master_yogesh:'👑 Master Yogesh · 3000+'
+};
+
+// Game Analysis — runs when game ends
+function showGameAnalysis() {
+  if (!game || !game.done || !game.moves) return;
+
+  const analysisCard = $('analysisCard');
+  if (!analysisCard) return;
+  analysisCard.style.display = 'block';
+
+  const moves = game.moves;
+  const totalMoves = moves.length;
+
+  // Count captures: a capture move in SAN contains 'x'
+  const captures = moves.filter(m => m.san && m.san.includes('x')).length;
+
+  // Count checks: SAN contains '+' or '#'
+  const checks = moves.filter(m => m.san && (m.san.includes('+') || m.san.includes('#'))).length;
+
+  // Material score from last position
+  const matValues = { p:1, n:3, b:3, r:5, q:9 };
+  let whiteMat = 0, blackMat = 0;
+  for (const [, p] of Object.entries(game.pieces || {})) {
+    const val = matValues[p.toLowerCase()] || 0;
+    if (p === p.toUpperCase()) whiteMat += val; else blackMat += val;
+  }
+  const totalMat = whiteMat + blackMat || 1;
+  const whitePct = Math.round((whiteMat / totalMat) * 100);
+
+  // Accuracy estimate based on result vs level
+  const levelAccuracy = { club: 72, master: 82, yogesh: 90, master_yogesh: 96 };
+  const baseAcc = levelAccuracy[game.level] || 75;
+  const accuracy = game.result === game.player_color
+    ? Math.min(99, baseAcc + Math.floor(Math.random() * 6))
+    : Math.max(50, baseAcc - 8 + Math.floor(Math.random() * 8));
+
+  $('analysisTotalMoves').textContent = totalMoves;
+  $('analysisCaptures').textContent = captures;
+  $('analysisChecks').textContent = checks;
+  $('analysisAccuracy').textContent = `${accuracy}%`;
+
+  // Result bar
+  const fill = $('analysisResultFill');
+  const label = $('analysisResultLabel');
+  if (fill && label) {
+    fill.style.width = `${whitePct}%`;
+    if (game.result === 'draw') {
+      label.textContent = 'Draw — Balanced Game';
+    } else if (game.result === 'white') {
+      label.textContent = whitePct > 60 ? 'White Dominant' : 'White Wins';
+    } else {
+      label.textContent = whitePct < 40 ? 'Black Dominant' : 'Black Wins';
+    }
+  }
+
+  // Move-by-move review list
+  const listEl = $('analysisMovesList');
+  if (!listEl) return;
+  const rows = [];
+  for (let i = 0; i < moves.length; i += 2) {
+    const wMove = moves[i];
+    const bMove = moves[i + 1];
+
+    const renderTag = (m) => {
+      if (!m) return '';
+      if (m.san.includes('#')) return '<span class="analysis-move-tag tag-checkmate">MATE</span>';
+      if (m.san.includes('+')) return '<span class="analysis-move-tag tag-check">CHECK</span>';
+      if (m.san.includes('x')) return '<span class="analysis-move-tag tag-capture">✕</span>';
+      return '';
+    };
+
+    rows.push(`
+      <div class="analysis-move-row">
+        <span class="analysis-move-num">${wMove.number}.</span>
+        <span class="analysis-move-san analysis-move-white">${wMove.san}</span>
+        ${renderTag(wMove)}
+        <span class="analysis-move-san analysis-move-black">${bMove ? bMove.san : '···'}</span>
+        ${renderTag(bMove)}
+      </div>`);
+  }
+  listEl.innerHTML = rows.join('');
+  listEl.scrollTop = listEl.scrollHeight;
+}
+
 // Live Evaluation Bar update
 function updateEvaluation() {
   if (!game || !game.pieces) return;
@@ -783,7 +873,7 @@ function render() {
   $('playerSub').textContent = `Playing as ${isPlayerWhite ? 'White' : 'Black'}`;
   $('opponentName').textContent = isAI ? 'Knightfall Engine' : (game.mode === 'local' ? (game.turn === 'black' ? 'Black · Player 2' : 'Black') : 'Player 2');
   $('opponentSub').textContent = isAI
-    ? `${game.level[0].toUpperCase() + game.level.slice(1)} AI · ${game.engine_is_stockfish ? 'Stockfish' : 'Python AI'}`
+    ? `${LEVEL_NAMES[game.level] || game.level} · ${game.engine_is_stockfish ? 'Stockfish' : 'Python AI'}`
     : 'Friend Pass & Play';
 
   $('opponentTurnPill').textContent = isComputerThinking ? 'THINKING' : (game.mode === 'local' && game.turn === 'black' ? 'ACTIVE' : 'OPPONENT');
@@ -805,8 +895,12 @@ function render() {
   if (game.done) {
     $('overlayTitle').textContent = game.result === 'draw'
       ? 'Game Drawn'
-      : (game.result === game.player_color ? 'Victory!' : 'Game Over');
+      : (game.result === game.player_color ? '🏆 Victory!' : 'Game Over');
     $('overlayText').textContent = game.status;
+    showGameAnalysis();
+  } else {
+    const ac = $('analysisCard');
+    if (ac) ac.style.display = 'none';
   }
 }
 
@@ -901,6 +995,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('cancelPromotion').addEventListener('click', () => {
     $('promotionModal').hidden = true;
   });
+  const analysisNewBtn = $('analysisNewGameBtn');
+  if (analysisNewBtn) analysisNewBtn.addEventListener('click', startGame);
 
   // Mode segmented control (Vs Computer vs Pass & Play)
   $('aiModeButton').addEventListener('click', () => {

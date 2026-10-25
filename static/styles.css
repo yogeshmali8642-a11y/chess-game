@@ -1251,3 +1251,122 @@ button:focus-visible, select:focus-visible {
     justify-content: space-between;
   }
 }
+
+/* ─── Game Analysis Panel ──────────────────────────────────────── */
+.analysis-card { animation: fadeSlideUp 0.4s ease; }
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.analysis-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.analysis-stat {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.analysis-stat-value {
+  display: block;
+  font-size: 1.7em;
+  font-weight: 700;
+  color: var(--emerald-neon);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.analysis-stat-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.analysis-result-bar {
+  position: relative;
+  height: 22px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 11px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.analysis-result-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1a2a20, var(--emerald-neon));
+  border-radius: 11px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.analysis-result-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-main);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+.analysis-moves-review {
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184,243,106,0.3) transparent;
+}
+
+.analysis-move-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.analysis-move-row:hover { background: rgba(255,255,255,0.04); }
+
+.analysis-move-num {
+  color: var(--text-dim);
+  min-width: 22px;
+  font-size: 11px;
+}
+
+.analysis-move-san {
+  font-weight: 600;
+  flex: 1;
+}
+
+.analysis-move-white { color: #f3f6f3; }
+.analysis-move-black { color: #95a397; }
+
+.analysis-move-tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.tag-capture { background: rgba(245,158,11,0.2); color: var(--gold-accent); }
+.tag-check   { background: rgba(239,68,68,0.2);  color: var(--danger-crimson); }
+.tag-checkmate { background: rgba(239,68,68,0.35); color: #ff8080; }
+
+/* Difficulty level badge colors in the select */
+#levelSelect option[value="club"]         { font-weight: 600; }
+#levelSelect option[value="master"]       { font-weight: 600; }
+#levelSelect option[value="yogesh"]       { font-weight: 700; }
+#levelSelect option[value="master_yogesh"]{ font-weight: 700; }

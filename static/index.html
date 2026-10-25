@@ -231,9 +231,10 @@
             <div class="form-field" id="levelField">
               <label class="field-label" for="levelSelect">AI DIFFICULTY</label>
               <select id="levelSelect">
-                <option value="casual">Casual (800)</option>
-                <option value="club" selected>Club Player (1500)</option>
-                <option value="strong">Master (2200)</option>
+                <option value="club" selected>⚔️ Club Player · 1500</option>
+                <option value="master">🏆 Master · 2200</option>
+                <option value="yogesh">🔥 Yogesh · 2700</option>
+                <option value="master_yogesh">👑 Master Yogesh · 3000+</option>
               </select>
             </div>
           </div>
@@ -276,6 +277,49 @@
           <div class="moves-footer-status">
             <span class="pulse-dot"></span>
             <span id="recordStatus">Ready for first move</span>
+          </div>
+        </section>
+
+        <!-- Game Analysis Card -->
+        <section class="panel-card analysis-card" id="analysisCard" style="display:none;">
+          <div class="panel-header">
+            <div class="panel-header-title">
+              <small>Post-Game</small>
+              <h2>Game Analysis</h2>
+            </div>
+            <span class="panel-header-icon">📊</span>
+          </div>
+
+          <div class="analysis-summary" id="analysisSummary">
+            <div class="analysis-stat-grid">
+              <div class="analysis-stat">
+                <span class="analysis-stat-value" id="analysisTotalMoves">0</span>
+                <span class="analysis-stat-label">Total Moves</span>
+              </div>
+              <div class="analysis-stat">
+                <span class="analysis-stat-value" id="analysisCaptures">0</span>
+                <span class="analysis-stat-label">Captures</span>
+              </div>
+              <div class="analysis-stat">
+                <span class="analysis-stat-value" id="analysisChecks">0</span>
+                <span class="analysis-stat-label">Checks</span>
+              </div>
+              <div class="analysis-stat">
+                <span class="analysis-stat-value" id="analysisAccuracy">—</span>
+                <span class="analysis-stat-label">Accuracy</span>
+              </div>
+            </div>
+
+            <div class="analysis-result-bar" id="analysisResultBar">
+              <div class="analysis-result-fill" id="analysisResultFill" style="width:50%"></div>
+              <span class="analysis-result-label" id="analysisResultLabel">Balanced</span>
+            </div>
+
+            <div class="analysis-moves-review" id="analysisMovesList"></div>
+
+            <button class="btn-primary" id="analysisNewGameBtn" style="margin-top:12px;">
+              <span>＋</span> New Match
+            </button>
           </div>
         </section>
       </aside>

@@ -17,7 +17,7 @@
   // Positional Piece-Square Tables (White perspective; flipped for Black)
   const PST = {
     p: [
-      0,  0,  0,  0,  0,  0,  0,  0,
+       0,  0,  0,  0,  0,  0,  0,  0,
       50, 50, 50, 50, 50, 50, 50, 50,
       10, 10, 20, 30, 30, 20, 10, 10,
        5,  5, 10, 25, 25, 10,  5,  5,
@@ -94,21 +94,16 @@
     const emptyIndices = () => pieces.map((p, i) => p === undefined ? i : -1).filter(i => i !== -1);
     const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-    // 1. Light-square bishop on even square
     const b1 = rand([0, 2, 4, 6]);
     pieces[b1] = 'B';
-    // 2. Dark-square bishop on odd square
     const b2 = rand([1, 3, 5, 7]);
     pieces[b2] = 'B';
-    // 3. Queen
     const q = rand(emptyIndices());
     pieces[q] = 'Q';
-    // 4. Two Knights
     const n1 = rand(emptyIndices());
     pieces[n1] = 'N';
     const n2 = rand(emptyIndices());
     pieces[n2] = 'N';
-    // 5. Remaining 3 slots: Rook, King, Rook (King between rooks)
     const rem = emptyIndices();
     pieces[rem[0]] = 'R';
     pieces[rem[1]] = 'K';
@@ -119,6 +114,14 @@
     return `${blackRank}/pppppppp/8/8/8/8/PPPPPPPP/${whiteRank} w KQkq - 0 1`;
   }
 
+  // Level config: depth of minimax search
+  const LEVEL_DEPTH = {
+    club: 2,
+    master: 3,
+    yogesh: 4,
+    master_yogesh: 5
+  };
+
   class OfflineChessEngine {
     constructor() {
       this.gameId = null;
@@ -128,7 +131,7 @@
       this.variant = 'classical';
       this.chess = new Chess();
       this.lastMove = '';
-      this.historyMoves = []; // { number, san, uci }
+      this.historyMoves = [];
     }
 
     newGame(mode = 'ai', playerColor = 'white', level = 'club', variant = 'classical') {
@@ -149,7 +152,6 @@
       this.lastMove = '';
       this.historyMoves = [];
 
-      // If computer plays white, make opening move
       if (this.mode === 'ai' && this.playerColor === 'black') {
         this.makeAIMove();
       }
@@ -199,10 +201,10 @@
       this.historyMoves.push({
         number: turnNum,
         san: moveResult.san,
-        uci: uci
+        uci: uci,
+        color: this.getTurn() === 'white' ? 'black' : 'white'
       });
 
-      // AI response if applicable
       if (this.mode === 'ai' && !this.chess.game_over() && this.getTurn() !== this.playerColor) {
         this.makeAIMove();
       }
@@ -217,36 +219,33 @@
 
       let bestMove = null;
 
+      // Casual: weighted random, prefers captures
       if (this.level === 'casual') {
-        // Casual: random or immediate capture
         const captures = moves.filter(m => m.captured);
         bestMove = captures.length && Math.random() > 0.4
           ? captures[Math.floor(Math.random() * captures.length)]
           : moves[Math.floor(Math.random() * moves.length)];
       } else {
-        // Club (depth 2) or Strong (depth 3)
-        const depth = this.level === 'strong' ? 3 : 2;
+        const depth = LEVEL_DEPTH[this.level] || 2;
         const isMaximizing = this.chess.turn() === 'w';
         let bestValue = isMaximizing ? -Infinity : Infinity;
 
-        // Shuffle moves to prevent deterministic repetitive games
+        // Add slight randomness for lower levels
+        const randomFactor = this.level === 'club' ? 0.15 : this.level === 'master' ? 0.05 : 0;
         const shuffled = moves.sort(() => Math.random() - 0.5);
 
         for (const move of shuffled) {
           this.chess.move(move);
-          const val = this.minimax(depth - 1, -Infinity, Infinity, !isMaximizing);
+          let val = this.minimax(depth - 1, -Infinity, Infinity, !isMaximizing);
           this.chess.undo();
 
+          // Add noise for lower difficulty levels
+          if (randomFactor > 0) val += (Math.random() - 0.5) * PIECE_VALUES.p * randomFactor * 2;
+
           if (isMaximizing) {
-            if (val > bestValue) {
-              bestValue = val;
-              bestMove = move;
-            }
+            if (val > bestValue) { bestValue = val; bestMove = move; }
           } else {
-            if (val < bestValue) {
-              bestValue = val;
-              bestMove = move;
-            }
+            if (val < bestValue) { bestValue = val; bestMove = move; }
           }
         }
       }
@@ -259,7 +258,8 @@
         this.historyMoves.push({
           number: turnNum,
           san: bestMove.san,
-          uci: uci
+          uci: uci,
+          color: this.getTurn() === 'white' ? 'black' : 'white'
         });
       }
     }
@@ -309,7 +309,6 @@
           const isWhite = piece.color === 'w';
           const val = PIECE_VALUES[type] || 0;
 
-          // PST index
           const pstIndex = isWhite ? r * 8 + c : (7 - r) * 8 + c;
           const posVal = (PST[type] && PST[type][pstIndex]) || 0;
 
@@ -324,7 +323,6 @@
       if (!this.historyMoves.length) return this.getState();
 
       if (this.mode === 'ai') {
-        // Undo both player and computer moves
         this.chess.undo();
         this.historyMoves.pop();
         if (this.historyMoves.length && this.getTurn() !== this.playerColor) {
@@ -396,7 +394,7 @@
       const inCheck = this.chess.in_check();
       const inCheckmate = this.chess.in_checkmate();
       const inDraw = this.chess.in_draw();
-      const done = inCheckmate || inDraw;
+      let done = inCheckmate || inDraw;
 
       let result = '';
       let status = `${turn[0].toUpperCase() + turn.slice(1)} to move.`;
@@ -411,28 +409,18 @@
         status += ' Check!';
       }
 
-      return {
-        game_id: this.gameId,
-        fen: fen,
-        pieces: pieces,
-        turn: turn,
-        player_color: this.playerColor,
-      let hillDone = false;
+      // King of the Hill variant check
       if (this.variant === 'king_hill') {
         const hillSquares = ['d4', 'e4', 'd5', 'e5'];
         for (const sq of hillSquares) {
           if (pieces[sq] === 'K') {
-            done = true;
-            result = 'white';
+            done = true; result = 'white';
             status = 'White wins! Royal King claimed the hill!';
-            hillDone = true;
             break;
           }
           if (pieces[sq] === 'k') {
-            done = true;
-            result = 'black';
+            done = true; result = 'black';
             status = 'Black wins! Royal King claimed the hill!';
-            hillDone = true;
             break;
           }
         }

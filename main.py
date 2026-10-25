@@ -36,9 +36,10 @@ PIECE_VALUES = {
     chess.KING: 0,
 }
 LEVELS = {
-    "casual": {"skill": 2, "time": 0.15, "fallback_depth": 1},
-    "club": {"skill": 8, "time": 0.35, "fallback_depth": 2},
-    "strong": {"skill": 18, "time": 0.80, "fallback_depth": 3},
+    "club":         {"skill": 5,  "time": 0.20, "fallback_depth": 2},
+    "master":       {"skill": 12, "time": 0.40, "fallback_depth": 3},
+    "yogesh":       {"skill": 18, "time": 0.80, "fallback_depth": 4},
+    "master_yogesh":{"skill": 20, "time": 1.50, "fallback_depth": 5},
 }
 
 
@@ -93,7 +94,7 @@ def shutdown() -> None:
 class NewGameRequest(BaseModel):
     mode: str = Field(default="ai", pattern="^(ai|local)$")
     player_color: str = Field(default="white", pattern="^(white|black)$")
-    level: str = Field(default="club", pattern="^(casual|club|strong)$")
+    level: str = Field(default="club", pattern="^(club|master|yogesh|master_yogesh)$")
     variant: str = Field(default="classical")
     initial_fen: str | None = None
 
