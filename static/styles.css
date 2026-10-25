@@ -43,6 +43,54 @@ body {
   overflow-x: hidden;
 }
 
+/* Guided landing and setup flow */
+.entry-flow { min-height: 100vh; display: grid; place-items: center; position: relative; overflow: hidden; padding: 32px 20px; }
+.entry-glow { position: absolute; width: 680px; height: 680px; border-radius: 50%; background: radial-gradient(circle, rgba(184,243,106,.12), transparent 66%); filter: blur(8px); pointer-events: none; }
+.entry-brand { position: absolute; top: 34px; left: 42px; display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: .18em; }
+.entry-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg,#d2ff7b,#8fd93b); color: #0c1a08; font-size: 23px; box-shadow: 0 4px 20px var(--emerald-glow); }
+.landing-card, .setup-wizard { position: relative; z-index: 1; width: min(100%, 570px); padding: 52px; background: rgba(18,25,21,.78); border: 1px solid rgba(184,243,106,.22); border-radius: 26px; box-shadow: var(--shadow-main); backdrop-filter: blur(22px); }
+.eyebrow { color: var(--emerald-neon); font-size: 10px; font-weight: 800; letter-spacing: .2em; margin-bottom: 16px; }
+.landing-card h1 { font-size: clamp(42px, 7vw, 70px); line-height: .98; letter-spacing: -.055em; margin-bottom: 22px; }
+.landing-card h1 span { color: var(--emerald-neon); }
+.landing-copy, .wizard-copy { color: var(--text-muted); line-height: 1.7; max-width: 390px; margin-bottom: 30px; }
+.entry-cta { max-width: 250px; }
+.entry-features { display: flex; gap: 18px; margin-top: 28px; color: var(--text-dim); font-size: 11px; font-weight: 700; }
+.entry-features span::before { content: '•'; color: var(--emerald-neon); margin-right: 6px; }
+.setup-wizard h2 { font-size: 32px; margin-bottom: 7px; }
+.wizard-back { color: var(--text-muted); font-size: 12px; margin-bottom: 34px; }
+.wizard-back:hover { color: var(--emerald-neon); }
+.wizard-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 24px 0; }
+.wizard-mode { text-align: left; padding: 16px; border: 1px solid var(--panel-border); border-radius: 12px; background: rgba(0,0,0,.28); color: var(--text-muted); }
+.wizard-mode.active { border-color: var(--emerald-neon); background: rgba(184,243,106,.1); color: var(--text-main); box-shadow: 0 0 20px rgba(184,243,106,.08); }
+.wizard-icon { display: block; color: var(--emerald-neon); font-size: 24px; margin-bottom: 8px; }
+.wizard-mode strong, .wizard-mode small { display: block; }
+.wizard-mode strong { font-size: 13px; margin-bottom: 3px; }
+.wizard-mode small { font-size: 10px; color: var(--text-muted); }
+.wizard-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 22px; }
+.wizard-form-grid label { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.wizard-form-grid select { display: block; width: 100%; margin-top: 7px; padding: 11px 10px; border: 1px solid var(--panel-border); border-radius: 8px; background: rgba(0,0,0,.45); font-size: 12px; letter-spacing: 0; }
+.wizard-form-grid label.is-disabled { opacity: .4; }
+.customize-toggle { display: none; color: var(--text-muted); font-size: 12px; padding: 8px 12px; border: 1px solid var(--panel-border); border-radius: 8px; }
+.customize-toggle:hover { color: var(--emerald-neon); border-color: var(--emerald-neon); }
+body.game-active { overflow: hidden; }
+body.game-active .app-shell { max-width: 1600px; min-height: 100vh; padding-bottom: 16px; }
+body.game-active .topbar { height: 60px; }
+body.game-active .customize-toggle { display: block; }
+body.game-active .topbar-controls { display: none; }
+body.game-active .topbar-controls.customize-open { display: flex; }
+body.game-active .workspace { grid-template-columns: minmax(440px, 1fr) minmax(300px, 390px); }
+body.game-active .entry-flow { display: none; }
+body.game-active .side-panel { max-height: calc(100vh - 90px); overflow-y: auto; scrollbar-width: thin; }
+
+@media (max-width: 640px) {
+  .entry-brand { top: 20px; left: 20px; }
+  .landing-card, .setup-wizard { padding: 30px 22px; }
+  .wizard-mode-grid, .wizard-form-grid { grid-template-columns: 1fr; }
+  .entry-features { flex-wrap: wrap; gap: 8px 14px; }
+  body.game-active .workspace { grid-template-columns: 1fr; }
+  body.game-active .side-panel { display: none; }
+}
+
 button, select, input {
   font: inherit;
   color: inherit;
@@ -64,7 +112,9 @@ button:focus-visible, select:focus-visible {
   max-width: 1480px;
   margin: 0 auto;
   padding: 0 28px 40px;
+  display: none;
 }
+body.game-active .app-shell { display: block; }
 
 /* Topbar Header */
 .topbar {

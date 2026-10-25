@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Clearing Cache...</title>
+  <style>
+    body { background: #0b0f0d; color: #b8f36a; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; font-size: 18px; gap: 16px; }
+    .spinner { width: 40px; height: 40px; border: 3px solid rgba(184,243,106,0.2); border-top-color: #b8f36a; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    p { color: #95a397; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <div id="msg">Clearing old cache...</div>
+  <p id="sub">Please wait</p>
+  <script>
+    async function clearAll() {
+      const msg = document.getElementById('msg');
+      const sub = document.getElementById('sub');
+
+      // 1. Unregister ALL service workers
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) {
+          await reg.unregister();
+        }
+        sub.textContent = `Unregistered ${regs.length} service worker(s)`;
+      }
+
+      // 2. Delete ALL caches
+      const keys = await caches.keys();
+      for (const key of keys) {
+        await caches.delete(key);
+      }
+      msg.textContent = `Deleted ${keys.length} cache(s) ✓`;
+
+      // 3. Redirect to fresh app
+      await new Promise(r => setTimeout(r, 1200));
+      msg.textContent = 'Redirecting to fresh app...';
+      window.location.replace('/');
+    }
+
+    clearAll().catch(e => {
+      document.getElementById('msg').textContent = 'Error: ' + e.message;
+      setTimeout(() => window.location.replace('/'), 2000);
+    });
+  </script>
+</body>
+</html>

@@ -11,6 +11,36 @@
   <title>Knightfall 3D Chess Studio</title>
 </head>
 <body>
+  <!-- Guided entry flow: the board stays out of sight until a match is configured. -->
+  <main class="entry-flow" id="entryFlow">
+    <div class="entry-glow"></div>
+    <div class="entry-brand"><span class="entry-mark">&#9822;</span><span>KNIGHTFALL</span></div>
+    <section class="landing-card" id="landingScreen">
+      <p class="eyebrow">3D CHESS STUDIO</p>
+      <h1>Every move tells<br><span>a story.</span></h1>
+      <p class="landing-copy">Enter the arena, choose your opponent, and play a match built around your style.</p>
+      <button class="btn-primary entry-cta" id="beginMatchButton"><span>+</span> Begin a match</button>
+      <div class="entry-features"><span>WebGL 3D</span><span>Offline ready</span><span>Private games</span></div>
+    </section>
+
+    <section class="setup-wizard" id="setupWizard" hidden>
+      <button class="wizard-back" id="wizardBackButton" type="button">&#8592; Back</button>
+      <p class="eyebrow">MATCH SETUP</p>
+      <h2>Choose your arena.</h2>
+      <p class="wizard-copy">Set the match details before stepping onto the board.</p>
+      <div class="wizard-mode-grid">
+        <button class="wizard-mode active" data-wizard-mode="ai" type="button"><span class="wizard-icon">&#9822;</span><strong>Play the computer</strong><small>Challenge Knightfall Engine</small></button>
+        <button class="wizard-mode" data-wizard-mode="local" type="button"><span class="wizard-icon">&#9823;</span><strong>Play with a friend</strong><small>Pass &amp; Play on one device</small></button>
+      </div>
+      <div class="wizard-form-grid">
+        <label>GAME TYPE<select id="wizardVariantSelect"><option value="classical">Classical Royal Chess</option><option value="chess960">Chess960</option><option value="knights">Royal Knights Duel</option><option value="king_hill">King of the Hill</option></select></label>
+        <label>TIME CONTROL<select id="wizardTimeSelect"><option value="none">Casual - No Clock</option><option value="10" selected>Rapid - 10 min</option><option value="5">Blitz - 5 min</option><option value="3+2">Blitz - 3 min + 2s</option><option value="1">Bullet - 1 min</option></select></label>
+        <label id="wizardColorField">YOUR COLOR<select id="wizardColorSelect"><option value="white">White (plays first)</option><option value="black">Black (plays second)</option></select></label>
+        <label id="wizardLevelField">LEVEL<select id="wizardLevelSelect"><option value="club">Club Player - 1500</option><option value="master">Master - 2200</option><option value="yogesh">Yogesh - 2700</option><option value="master_yogesh">Master Yogesh - 3000+</option></select></label>
+      </div>
+      <button class="btn-primary" id="launchMatchButton" type="button"><span>&#9654;</span> Enter the arena</button>
+    </section>
+  </main>
   <div class="app-shell">
     <!-- Topbar Navigation -->
     <header class="topbar">
@@ -56,6 +86,7 @@
           ⇩
         </button>
       </div>
+      <button class="customize-toggle" id="customizeToggle" type="button">Customize</button>
     </header>
 
     <!-- Subtitle / Hero Bar -->

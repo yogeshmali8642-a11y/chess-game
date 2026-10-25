@@ -224,7 +224,7 @@ function onTimeLoss(loserColor) {
 }
 
 // Start New Game
-async function startGame() {
+async function startGame({ playSound = true } = {}) {
   setBusy(true);
   const mode = document.querySelector('.segment-btn.active')?.dataset.mode || 'ai';
   const player_color = $('colorSelect').value;
@@ -261,7 +261,7 @@ async function startGame() {
     chessClock.start('white', onTimeLoss);
 
     render();
-    if (window.chessAudio) window.chessAudio.playMove();
+    if (playSound && window.chessAudio) window.chessAudio.playMove();
 
     if (game.mode === 'ai' && game.moves.length === 1) {
       showToast('The computer opens. Your move.');
@@ -271,6 +271,32 @@ async function startGame() {
   } finally {
     setBusy(false);
   }
+}
+
+// Move from the guided setup into the existing game surface.
+function enterGameMode() {
+  document.body.classList.add('game-active');
+  const shell = document.querySelector('.app-shell');
+  if (chess3dInstance) chess3dInstance.resize();
+  if (shell && shell.requestFullscreen) shell.requestFullscreen().catch(() => {});
+}
+
+function leaveGameMode() {
+  if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  document.body.classList.remove('game-active');
+  document.querySelector('.topbar-controls')?.classList.remove('customize-open');
+  $('setupWizard').hidden = false;
+  $('landingScreen').hidden = true;
+}
+
+function syncWizardToGameControls() {
+  const mode = document.querySelector('.wizard-mode.active')?.dataset.wizardMode || 'ai';
+  const modeButton = mode === 'ai' ? $('aiModeButton') : $('localModeButton');
+  modeButton.click();
+  $('variantSelect').value = $('wizardVariantSelect').value;
+  $('timeSelect').value = $('wizardTimeSelect').value;
+  $('colorSelect').value = $('wizardColorSelect').value;
+  $('levelSelect').value = $('wizardLevelSelect').value;
 }
 
 // Load Existing or Start New
@@ -300,7 +326,7 @@ async function loadExistingGame() {
       localStorage.removeItem('knightfall-game-id');
     }
   }
-  await startGame();
+  await startGame({ playSound: false });
 }
 
 // Square Click Handler (called from 3D raycast or 2D button click)
@@ -1019,11 +1045,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     $('levelSelect').disabled = true;
   });
 
-  // PWA Install Prompt
+  // PWA Install Prompt — stash the event for the custom Install button.
+  // Chrome logs "Banner not shown" when preventDefault() is used; that is
+  // expected until the user clicks Install (which calls prompt()).
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
   window.addEventListener('beforeinstallprompt', (e) => {
+    if (isStandalone) return;
     e.preventDefault();
     installPrompt = e;
-    $('installButton').hidden = false;
+    const btn = $('installButton');
+    if (btn) btn.hidden = false;
   });
   $('installButton').addEventListener('click', async () => {
     if (!installPrompt) return;
@@ -1031,6 +1063,41 @@ window.addEventListener('DOMContentLoaded', async () => {
     await installPrompt.userChoice;
     installPrompt = null;
     $('installButton').hidden = true;
+  });
+
+  // Guided landing -> setup -> game flow.
+  $('beginMatchButton').addEventListener('click', () => {
+    $('landingScreen').hidden = true;
+    $('setupWizard').hidden = false;
+  });
+  $('wizardBackButton').addEventListener('click', () => {
+    $('setupWizard').hidden = true;
+    $('landingScreen').hidden = false;
+  });
+  document.querySelectorAll('.wizard-mode').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.wizard-mode').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      const local = button.dataset.wizardMode === 'local';
+      $('wizardColorField').classList.toggle('is-disabled', local);
+      $('wizardLevelField').classList.toggle('is-disabled', local);
+      $('wizardColorSelect').disabled = local;
+      $('wizardLevelSelect').disabled = local;
+    });
+  });
+  $('launchMatchButton').addEventListener('click', async () => {
+    syncWizardToGameControls();
+    await startGame({ playSound: true });
+    enterGameMode();
+    $('setupWizard').hidden = true;
+  });
+  $('customizeToggle').addEventListener('click', () => {
+    document.querySelector('.topbar-controls')?.classList.toggle('customize-open');
+  });
+  window.addEventListener('appinstalled', () => {
+    installPrompt = null;
+    const btn = $('installButton');
+    if (btn) btn.hidden = true;
   });
 
   // Online / Offline state transitions
@@ -1056,6 +1123,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
 
-  // Load Game
-  await loadExistingGame();
+  // The first screen is intentionally the landing page. Existing saved games remain
+  // available through the normal setup flow so opening the app is always predictable.
 });

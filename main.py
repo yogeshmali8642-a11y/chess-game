@@ -341,6 +341,11 @@ def index() -> FileResponse:
     return FileResponse(STATIC / "index.html")
 
 
+@app.get("/clear-cache")
+def clear_cache_page() -> FileResponse:
+    return FileResponse(STATIC / "clear-cache.html")
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
     return {"ok": True, "engine": "Stockfish" if ENGINE is not None else "Python fallback"}

@@ -5,9 +5,24 @@ class ChessAudio {
   constructor() {
     this.ctx = null;
     this.enabled = localStorage.getItem('knightfall-sound') !== 'false';
+    this.unlocked = false;
+    this._armUnlock();
+  }
+
+  _armUnlock() {
+    const unlock = () => {
+      this.unlocked = true;
+      this.ensureContext();
+    };
+    ['pointerdown', 'keydown', 'touchstart'].forEach((type) => {
+      document.addEventListener(type, unlock, { once: true, capture: true });
+    });
   }
 
   ensureContext() {
+    // Chrome blocks AudioContext until a user gesture. Do not create or resume
+    // it on page load — that logs autoplay warnings and never actually plays.
+    if (!this.unlocked) return false;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
@@ -17,6 +32,7 @@ class ChessAudio {
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
     }
+    return !!this.ctx;
   }
 
   toggleSound() {
@@ -30,8 +46,7 @@ class ChessAudio {
 
   playMove() {
     if (!this.enabled) return;
-    this.ensureContext();
-    if (!this.ctx) return;
+    if (!this.ensureContext()) return;
 
     const t = this.ctx.currentTime;
     
@@ -67,19 +82,21 @@ class ChessAudio {
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-    osc.start(t);
-    osc.stop(t + 0.1);
-
     noise.connect(filter);
     filter.connect(noiseGain);
     noiseGain.connect(this.ctx.destination);
-    noise.start(t);
+    try {
+      osc.start(t);
+      osc.stop(t + 0.1);
+      noise.start(t);
+    } catch (_) {
+      // Autoplay policy can still reject start() if resume has not completed.
+    }
   }
 
   playCapture() {
     if (!this.enabled) return;
-    this.ensureContext();
-    if (!this.ctx) return;
+    if (!this.ensureContext()) return;
 
     const t = this.ctx.currentTime;
 
@@ -114,19 +131,19 @@ class ChessAudio {
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-    osc.start(t);
-    osc.stop(t + 0.15);
-
     noise.connect(filter);
     filter.connect(noiseGain);
     noiseGain.connect(this.ctx.destination);
-    noise.start(t);
+    try {
+      osc.start(t);
+      osc.stop(t + 0.15);
+      noise.start(t);
+    } catch (_) {}
   }
 
   playCheck() {
     if (!this.enabled) return;
-    this.ensureContext();
-    if (!this.ctx) return;
+    if (!this.ensureContext()) return;
 
     const t = this.ctx.currentTime;
     
@@ -145,8 +162,10 @@ class ChessAudio {
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-      osc.start(t + delay);
-      osc.stop(t + delay + 0.36);
+      try {
+        osc.start(t + delay);
+        osc.stop(t + delay + 0.36);
+      } catch (_) {}
     });
   }
 
@@ -157,8 +176,7 @@ class ChessAudio {
 
   playGameEnd(isWin) {
     if (!this.enabled) return;
-    this.ensureContext();
-    if (!this.ctx) return;
+    if (!this.ensureContext()) return;
 
     const t = this.ctx.currentTime;
     const notes = isWin ? [523.25, 659.25, 783.99, 1046.50] : [440, 392, 349.23, 293.66];
@@ -177,8 +195,10 @@ class ChessAudio {
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-      osc.start(start);
-      osc.stop(start + 0.5);
+      try {
+        osc.start(start);
+        osc.stop(start + 0.5);
+      } catch (_) {}
     });
   }
 }
